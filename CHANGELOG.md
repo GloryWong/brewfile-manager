@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/GloryWong/brewfile-manager/compare/v1.0.1...v1.1.0) (2025-03-06)
+
+
+### Features
+
+* input gist id && save it in local ([8b7349a](https://github.com/GloryWong/brewfile-manager/commit/8b7349a665e6e6ea60c080cd0e9ad10041ad8613))
+
 ## [1.0.1](https://github.com/GloryWong/brewfile-manager/compare/v1.0.0...v1.0.1) (2025-03-06)
 
 
