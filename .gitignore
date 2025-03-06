@@ -1,0 +1,28 @@
+# Ignore log and temp files
+*.log
+*.tmp
+*.bak
+
+# Ignore compiled or binary files
+*.out
+*.o
+*.exe
+
+# Ignore editor/IDE-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore config/environment files
+config/config.env
+.env
+
+# Ignore release archives
+*.tar.gz
+*.zip
