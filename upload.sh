@@ -1,12 +1,48 @@
 #!/bin/bash
 
-# GitHub Gist ID
-GIST_ID="e6160d25739b1436fc5c47a48ce91d78"
+# GitHub Gist ID file path
+GIST_ID_FILE="$HOME/.bm_gist_id"
 
 # GitHub Personal Access Token file path
 GITHUB_TOKEN_FILE="$HOME/.bm_github_token"
 
 BREWFILE_PATH="$HOME/Brewfile"
+
+confirm() {
+    local prompt="$1"
+    local default="$2"
+    local answer
+
+    # Determine the default prompt text
+    if [[ "$default" == "y" || "$default" == "Y" ]]; then
+        prompt="$prompt [Y/n]"
+    elif [[ "$default" == "n" || "$default" == "N" ]]; then
+        prompt="$prompt [y/N]"
+    else
+        prompt="$prompt [y/n]"
+        default=""
+    fi
+
+    while true; do
+        read -p "$prompt: " answer
+        if [[ -z "$answer" ]]; then
+            # If no input is provided, use the default value
+            answer="$default"
+        fi
+
+        case "$answer" in
+            [Yy]* )
+                return 0 # Yes
+                ;;
+            [Nn]* )
+                return 1 # No
+                ;;
+            * )
+                echo "Please answer y or n."
+                ;;
+        esac
+    done
+}
 
 ###### Main ######
 
@@ -39,6 +75,25 @@ if ! command -v jq >/dev/null; then
     fi
 fi
 
+# Check for existing Gist ID
+if [[ -z "$GIST_ID" ]]; then
+  if [[ -f "$GIST_ID_FILE" ]]; then
+    GIST_ID=$(cat "$GIST_ID_FILE")
+    if [[ -n "$GIST_ID" ]]; then
+      echo "Found existing Gist id $GIST_ID"
+      if ! confirm "Do you want to use it?" "y"; then
+        unset GIST_ID
+      fi
+    fi
+  fi
+fi
+
+# Prompt for Gist ID if it's not set
+while [[ -z "$GIST_ID" ]]; do
+  read -r -p "Enter the Gist id to which you want to upload the Brewfile: " GIST_ID
+  echo
+done
+
 # Check for existing GitHub personal access token
 if [[ -z "$GITHUB_TOKEN" ]]; then
   # Check for a stored token in the file
@@ -47,7 +102,7 @@ if [[ -z "$GITHUB_TOKEN" ]]; then
   fi
 fi
 
-# Prompt for token if it's not set or invalid
+# Prompt for token if it's not set
 while [[ -z "$GITHUB_TOKEN" ]]; do
   read -r -s -p "Enter your GitHub personal access token: " GITHUB_TOKEN
   echo
@@ -77,7 +132,14 @@ status_code=$(curl -L \
   -d "{\"files\":{\"Brewfile\":{\"content\":$BREWFILE_CONTENT_ESCAPED}}}"
 )
 
-# Save the token to a file and secure it
+# Save Gist ID to the file
+if [ $status_code -eq 404 ]; then
+  echo "" > "$GIST_ID_FILE"
+else
+  echo "$GIST_ID" > "$GIST_ID_FILE"
+fi
+
+# Save the token to the file and secure it
 if [ $status_code -eq 401 ]; then
   echo "Error: Invalid token (Make sure the gist permission is granted)"
   echo "" > "$GITHUB_TOKEN_FILE"
@@ -90,7 +152,7 @@ fi
 if [ $status_code -eq 200 ]; then
   echo "Brewfile uploaded successfully to the Gist!"
 elif [ $status_code -eq 404 ]; then
-  echo "Error: Gist not found!"
+  echo "Error: Gist $GIST_ID not found!"
 elif [ $status_code -eq 422 ]; then
   echo "Error: Validation failed, or the endpoint has been spammed."
 else
