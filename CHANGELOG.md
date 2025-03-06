@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/GloryWong/brewfile-manager/compare/v1.1.0...v1.2.0) (2025-03-06)
+
+
+### Features
+
+* update script file name to `backup` ([006a19d](https://github.com/GloryWong/brewfile-manager/commit/006a19d710c5c8a9cec8056e00354634922b32fe))
+
 ## [1.1.0](https://github.com/GloryWong/brewfile-manager/compare/v1.0.1...v1.1.0) (2025-03-06)
 
 
